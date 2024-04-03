@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+var binary bool
+
+func SetBinary(b bool) {
+    binary = b
+}
+
+func GetBinary() bool {
+    return binary
+}
+
 func normalizePath(path string) string {
 	// Specific handling for Windows drive letter
 	if runtime.GOOS == "windows" {

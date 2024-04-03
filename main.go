@@ -7,12 +7,15 @@ import (
 	"strings"
 )
 
+var binary bool
+
 func main() {
 
 	fmt.Print("\n\nLicenseware OJDM Collector - Gather all java info in one place\n\n")
 
 	csvReportPath := flag.String("output-path", "report.csv", "Optional: Path to csv report.")
 	searchPaths := flag.String("search-paths", "", "Optional: List of paths separated by comma where to search for java info.")
+    binary := flag.Bool("binary", false, "Optional: Search for java binary files instead of the library files.")
 
 	flag.Usage = func() {
 		fmt.Println()
@@ -23,12 +26,15 @@ func main() {
 		fmt.Println("     $ ojdm-collector -output-path=/path/to/csvreport.csv")
 		fmt.Println("     $ ojdm-collector -search-paths=/home,/oracle,/opt")
 		fmt.Println("     $ ojdm-collector -search-paths=/home,/usr,/opt -output-path=/path/to/csvreport.csv")
+        fmt.Println("     $ ojdm-collector -binary")
 		fmt.Println()
 		flag.PrintDefaults()
 	}
 
 	flag.Parse()
 
+    ojdmc.SetBinary(*binary)
+	
 	spaths := strings.Split(*searchPaths, ",")
 	trimSpaths := []string{}
 	for _, path := range spaths {

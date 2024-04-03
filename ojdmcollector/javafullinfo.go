@@ -9,9 +9,9 @@ func CollectJavaInfo(searchPaths []string) []JavaInfoRunningProcs {
 
 	var javaInfos []JavaInfoRunningProcs
 	var versionInfos []JavaInfoRunningProcs
-	javaLibPaths := getJavaSharedLibPaths(searchPaths)
+	javaFilePaths := getJavaFilePaths(searchPaths)
 
-	versionInfos = GetJavaVersionInfos(javaLibPaths)
+	versionInfos = GetJavaVersionInfos(javaFilePaths)
 	sort.Slice(versionInfos, func(i, j int) bool {
 		return versionInfos[i].JavaVersion > versionInfos[j].JavaVersion
 	})

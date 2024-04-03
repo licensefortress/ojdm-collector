@@ -8,14 +8,14 @@ import (
 	"runtime"
 )
 
-func getJavaBinaryPath(javaDllPath string) (string, error) {
+func getJavaBinaryPath(javaFilePath string) (string, error) {
 
 	javaExec := "java"
 	if runtime.GOOS == "windows" {
 		javaExec = "java.exe"
 	}
 
-	dir := filepath.Dir(javaDllPath)
+	dir := filepath.Dir(javaFilePath)
 	for i := 0; i < 4; i++ {
 		dir = filepath.Dir(dir)
 		binPath := filepath.Join(dir, "bin")
@@ -64,19 +64,28 @@ func parseJavaVersionOutput(output string) JavaInfoRunningProcs {
 	}
 }
 
-func GetJavaVersionInfos(javaDllPaths []string) []JavaInfoRunningProcs {
-	var versionInfos []JavaInfoRunningProcs
-	for _, dllPath := range javaDllPaths {
-		javaBinPath, err := getJavaBinaryPath(dllPath)
-		if err != nil {
-			continue
-		}
+func GetJavaVersionInfos(javaFilePaths []string) []JavaInfoRunningProcs {
+	versionInfos := make([]JavaInfoRunningProcs, 0, len(javaFilePaths))
+	var javaBinPath string
+	var err error
+    hostLogicalProcessors := runtime.NumCPU()
+    hostName := getHostName()
+	
+	for _, filePath := range javaFilePaths {
+        if binary {
+            javaBinPath = filePath
+        } else {
+		    javaBinPath, err = getJavaBinaryPath(filePath)
+		    if err != nil {
+			    continue
+		    }
+        }
 		output, err := executeJavaBinary(javaBinPath)
 		if err != nil {
 			continue // Handle error or log as needed
 		}
 		info := parseJavaVersionOutput(output)
-		info.DynLibBinPath = dllPath
+		info.DynLibBinPath = filePath
 		if checkToolExists(javaBinPath, "jps") && checkToolExists(javaBinPath, "jinfo") {
 			info.JpsJinfoPresent = true
 		}
@@ -87,8 +96,8 @@ func GetJavaVersionInfos(javaDllPaths []string) []JavaInfoRunningProcs {
 		} else {
 			info.IsJDK = false
 		}
-		info.HostName = getHostName()
-		info.HostLogicalProcessors = runtime.NumCPU()
+		info.HostName = hostName
+		info.HostLogicalProcessors = hostLogicalProcessors
 		versionInfos = append(versionInfos, info)
 	}
 	return versionInfos
